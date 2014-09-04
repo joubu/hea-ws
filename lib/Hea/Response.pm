@@ -8,7 +8,7 @@ sub json {
     my $cgi = new CGI;
 
     print $cgi->header('application/json');
-    print to_json($data);
+    print encode_json($data);
 }
 
 1;

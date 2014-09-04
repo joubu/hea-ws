@@ -1,6 +1,7 @@
 package Hea::Library;
 
 use Hea::Dbh;
+use Digest::MD5;
 
 sub get {
     my ($library_id) = @_;
@@ -19,24 +20,21 @@ sub get {
 sub create {
     my ($library) = @_;
 
-    my $library_id;
+    $library->{id} = build_new_id( $library->{name} );
 
     my $dbh = Hea::Dbh::dbh;
     my $sql = q{
-        INSERT INTO library (name, url, library_type, country)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO library (library_id, name, url, library_type, country)
+        VALUES (?, ?, ?, ?, ?)
     };
 
-    $library->{type} //= '';
-    $library->{country} //= '';
+    $library->{type} ||= '';
+    $library->{country} ||= '';
 
-    my $rows = $dbh->do($sql, {}, $library->{name}, $library->{url}, $library->{type},
+    my $rows = $dbh->do($sql, {}, $library->{id}, $library->{name}, $library->{url}, $library->{type},
         $library->{country});
-    if ($rows) {
-        $library_id = $dbh->last_insert_id(undef, undef, undef, undef);
-    }
 
-    return $library_id;
+    return $library->{id};
 }
 
 sub update {
@@ -68,6 +66,13 @@ sub update {
         my $rows = $dbh->do($sql, {}, @args, $library->{id});
         return $rows;
     }
+}
+
+sub build_new_id {
+    my ( $library_name ) = @_;
+    my $string = $library_name + int(rand(10000));
+    my $md5 = Digest::MD5->new->md5_base64($string);
+    return $md5;
 }
 
 1;

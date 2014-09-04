@@ -21,4 +21,12 @@ sub create {
     return $rows;
 }
 
+sub delete_all {
+    my ( $library_id ) = @_;
+    my $dbh = Hea::Dbh::dbh;
+    my $rows = $dbh->do(q|
+        DELETE FROM volumetry WHERE library_id = ?
+    |, {}, $library_id);
+}
+
 1;

@@ -12,6 +12,9 @@ sub dbh {
     $dbh //= DBI->connect('dbi:mysql:' . $conf->{database}, $conf->{user}, $conf->{password}, {
         RaiseError => 1
     });
+    $dbh->{'mysql_enable_utf8'} = 1;
+    $dbh->do("set NAMES 'utf8'");
+    return $dbh;
 }
 
 1;

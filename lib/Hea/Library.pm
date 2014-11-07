@@ -2,6 +2,7 @@ package Hea::Library;
 
 use Hea::Dbh;
 use Digest::MD5;
+use Data::Entropy qw( entropy_source );
 
 sub get {
     my ($library_id) = @_;
@@ -70,7 +71,8 @@ sub update {
 
 sub build_new_id {
     my ( $library_name ) = @_;
-    my $string = $library_name + int(rand(10000));
+    my $string = $library_name . entropy_source->get_bits(256);
+
     my $md5 = Digest::MD5->new->md5_base64($string);
     return $md5;
 }

@@ -25,8 +25,8 @@ sub create {
 
     my $dbh = Hea::Dbh::dbh;
     my $sql = q{
-        INSERT INTO library (library_id, name, url, library_type, country)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO library (library_id, name, url, library_type, country, creation_time)
+        VALUES (?, ?, ?, ?, ?, NOW())
     };
 
     $library->{type} ||= '';

@@ -3,28 +3,25 @@ package Hea::SystemPreference;
 use Hea::Dbh;
 
 sub create {
-    my ($library_id, $systempreference) = @_;
+    my ($koha_id, $systempreference) = @_;
 
     my $dbh = Hea::Dbh::dbh;
     my $insert_sql = q{
-        INSERT INTO systempreference(library_id, name, value)
+        INSERT INTO systempreference(koha_id, name, value)
         VALUES (?, ?, ?)
     };
     my $sth = $dbh->prepare($insert_sql);
-    my $rows;
-    foreach my $key (keys %$systempreference) {
-        $sth->execute($library_id, $key, $systempreference->{$key});
+    while ( my ( $name, $value ) = each %$systempreference ) {
+        $sth->execute( $koha_id, $name, $value );
     }
-
-    return $rows;
 }
 
 sub delete_all {
-    my ( $library_id ) = @_;
+    my ( $koha_id ) = @_;
     my $dbh = Hea::Dbh::dbh;
     my $rows = $dbh->do(q|
-        DELETE FROM systempreference WHERE library_id = ?
-    |, {}, $library_id);
+        DELETE FROM systempreference WHERE koha_id = ?
+    |, {}, $koha_id);
 }
 
 1;

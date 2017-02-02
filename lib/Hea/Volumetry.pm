@@ -3,16 +3,16 @@ package Hea::Volumetry;
 use Hea::Dbh;
 
 sub create {
-    my ($library_id, $volumetry) = @_;
+    my ($koha_id, $volumetry) = @_;
 
     my (@values, @values_args);
-    foreach my $key (keys %$volumetry) {
+    while ( my ( $name, $value ) = each %$volumetry ) {
         push @values, "(?, ?, ?)";
-        push @values_args, $library_id, $key, $volumetry->{$key};
+        push @values_args, $koha_id, $name, $value;
     }
 
     my $sql = q{
-        INSERT INTO volumetry (library_id, name, value)
+        INSERT INTO volumetry (koha_id, name, value)
         VALUES
     } . join (',', @values);
     my $dbh = Hea::Dbh::dbh;
@@ -22,11 +22,11 @@ sub create {
 }
 
 sub delete_all {
-    my ( $library_id ) = @_;
+    my ( $koha_id ) = @_;
     my $dbh = Hea::Dbh::dbh;
     my $rows = $dbh->do(q|
-        DELETE FROM volumetry WHERE library_id = ?
-    |, {}, $library_id);
+        DELETE FROM volumetry WHERE koha_id = ?
+    |, {}, $koha_id);
 }
 
 1;

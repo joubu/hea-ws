@@ -1,9 +1,6 @@
 package Hea::Library;
 
 use Hea::Dbh;
-use Digest::MD5;
-use Data::Entropy qw( entropy_source );
-use Encode;
 
 sub get {
     my ($library_id) = @_;
@@ -22,60 +19,27 @@ sub get {
 sub create {
     my ($library) = @_;
 
-    $library->{id} = build_new_id( $library->{name} );
-
+    return unless $library->{koha_id};
     my $dbh = Hea::Dbh::dbh;
     my $sql = q{
-        INSERT INTO library (library_id, name, url, library_type, country, creation_time)
-        VALUES (?, ?, ?, ?, ?, NOW())
+        INSERT INTO library (koha_id, name, url, country, geolocation)
+        VALUES (?, ?, ?, ?, ?)
     };
 
-    $library->{type} ||= '';
+    $library->{name} ||= '';
+    $library->{url} ||= '';
     $library->{country} ||= '';
+    $library->{geolocation} ||= '';
 
-    my $rows = $dbh->do($sql, {}, $library->{id}, $library->{name}, $library->{url}, $library->{type},
-        $library->{country});
-
-    return $library->{id};
+    return $dbh->do($sql, {}, $library->{koha_id}, $library->{name}, $library->{url}, $library->{country}, $library->{geolocation} );
 }
 
-sub update {
-    my ($library) = @_;
-
+sub delete_all {
+    my ( $koha_id ) = @_;
     my $dbh = Hea::Dbh::dbh;
-    my (@sets, @args);
-    if ($library->{name}) {
-        push @sets, q{ name = ? };
-        push @args, $library->{name};
-    }
-    if ($library->{url}) {
-        push @sets, q{ url = ? };
-        push @args, $library->{url};
-    }
-    if ($library->{type}) {
-        push @sets, q{ library_type = ? };
-        push @args, $library->{type};
-    }
-    if ($library->{country}) {
-        push @sets, q{ country = ? };
-        push @args, $library->{country};
-    }
-    if (@sets) {
-        my $sql = q{ UPDATE library SET };
-        $sql .= join(',', @sets);
-        $sql .= q{ WHERE library_id = ? };
-
-        my $rows = $dbh->do($sql, {}, @args, $library->{id});
-        return $rows;
-    }
-}
-
-sub build_new_id {
-    my ( $library_name ) = @_;
-    my $string = encode_utf8($library_name) . entropy_source->get_bits(256);
-
-    my $md5 = Digest::MD5->new->md5_base64($string);
-    return $md5;
+    my $rows = $dbh->do(q|
+        DELETE FROM library WHERE koha_id = ?
+    |, {}, $koha_id);
 }
 
 1;

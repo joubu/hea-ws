@@ -49,7 +49,7 @@ if ($data) {
           };
     } else {
         $installation = $data->{installation};
-        if ( $data->{libraries} ) {
+        if ( $data->{libraries} and @{ $data->{libraries} } ) {
             @libraries = @{ $data->{libraries} };
         } else {
             push @libraries,

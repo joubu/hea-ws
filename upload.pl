@@ -80,6 +80,7 @@ if ($data) {
 
     for my $library ( @libraries ) {
         $library->{koha_id} = $installation->{koha_id};
+        $library->{country} ||= $installation->{country};
         Hea::Library::create($library);
     }
     Hea::Volumetry::create($installation->{koha_id}, $data->{volumetry});

@@ -24,14 +24,17 @@ sub create {
 
     my $dbh = Hea::Dbh::dbh;
     my $sql = q{
-        INSERT INTO installation (koha_id, name, library_type, creation_time, modification_time)
-        VALUES (?, ?, ?, NOW(), NOW())
+        INSERT INTO installation (koha_id, name, url, country, geolocation, library_type, creation_time, modification_time)
+        VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())
     };
 
-    $installation->{library_type} ||= '';
     $installation->{name} ||= '';
+    $installation->{url} ||= '';
+    $installation->{country} ||= '';
+    $installation->{geolocation} ||= '';
+    $installation->{library_type} ||= '';
 
-    my $rows = $dbh->do($sql, {}, $installation->{koha_id}, $installation->{name}, $installation->{library_type} );
+    my $rows = $dbh->do($sql, {}, $installation->{koha_id}, $installation->{name}, $installation->{url}, $installation->{country}, $installation->{geolocation}, $installation->{library_type} );
     $installation->{id} = $dbh->last_insert_id( undef, undef, 'installation', undef );
     return $installation;
 }
